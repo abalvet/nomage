@@ -1,0 +1,146 @@
+/*ATTENTION: these are SQL queries that are typically passed to a SQL or SQLITE engine*/
+/*For use with the colab notebook, the queries must be converted into a one-liner SQL expression*/
+
+SELECT NUM_ACC, STRUCT_ARG_SEM_N, CLASSE_ASPECTUELLE_N 
+FROM table_vocables 
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_struct_arg_noms USING (ID_UL_NOMS) 
+INNER JOIN table_classes_aspectuelles_theoriques_n USING (ID_CLASSES_ASPECTUELLES_NOMS) 
+WHERE VOCABLE like "investissement" ORDER BY NUM_ACC
+/*sélection d'une UL + structure argumentale et classe aspectuelle*/
+/*selecting a Lexical Unit + argument structure and aspectual class*/
+
+SELECT ID_CONTEXTES, CONTEXTE 
+FROM table_vocables 
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_contextes USING (ID_UL_NOMS) 
+WHERE VOCABLE LIKE "investissement"
+/*sélection des contextes d'une UL*/
+/*select LU contexts*/
+
+SELECT SUFFIXE, STRUCT_ARG_SEM_N, CLASSE_ASPECTUELLE_N, VERBE, ID_BASES_VERBALES,  table_ul_verbes.ID_UL_VERBES, CONTEXTE
+FROM table_vocables
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_morphocue USING (ID_MORPHOCUE)
+INNER JOIN table_struct_arg_noms USING (ID_UL_NOMS) 
+INNER JOIN table_classes_aspectuelles_theoriques_n USING (ID_CLASSES_ASPECTUELLES_NOMS) 
+INNER JOIN table_jointure_nom_verbe USING (ID_VOCABLES)
+INNER JOIN table_bases_verbales USING (ID_BASES_VERBALES)
+INNER JOIN table_ul_verbes USING (ID_BASES_VERBALES)
+INNER JOIN table_contextes USING (ID_UL_NOMS)
+
+WHERE VOCABLE regexp "^.*ade$" ORDER BY VOCABLE
+
+/*sélection des contextes d'une UL sélectionnée par la regexp*/
+/*select a LU based on a regexp*/
+
+SELECT NUM_ACC, STRUCT_ARG_SEM_N, CLASSE_ASPECTUELLE_N 
+FROM table_vocables INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_struct_arg_noms USING (ID_UL_NOMS) 
+INNER JOIN table_classes_aspectuelles_theoriques_n USING (ID_CLASSES_ASPECTUELLES_NOMS) 
+WHERE VOCABLE LIKE "investissement" ORDER BY NUM_ACC
+/*sélection de la structure argumentale et de la classe aspectuelle d'un N*/
+/*select a Noun's argument structure and aspectual class*/
+
+SELECT VOCABLE 
+FROM table_vocables 
+INNER JOIN table_jointure_nom_verbe USING (ID_VOCABLES) 
+INNER JOIN table_bases_verbales USING (ID_BASES_VERBALES) 
+WHERE VERBE LIKE "investir"
+/*sélection de la base verbale correspondant à un N*/
+/*select the V base associated with a given N*/
+
+SELECT ID_VOCABLES, VOCABLE, ID_BASES_VERBALES, NUM_ACC, VERBE, ID_CONTEXTES, CONTEXTE
+FROM table_vocables 
+INNER JOIN table_jointure_nom_verbe USING (ID_VOCABLES) 
+INNER JOIN table_bases_verbales USING (ID_BASES_VERBALES) 
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_contextes USING (ID_UL_NOMS) 
+WHERE VOCABLE REGEXP "^.*tion"
+/*sélection d'un vocable correspondant à une regexp + son contexte*/
+/*select a word based on regexp + context*/
+
+SELECT SUFFIXE, NUM_ACC, STRUCT_ARG_SEM_N, CLASSE_ASPECTUELLE_N, VERBE
+FROM table_vocables 
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_morphocue USING (ID_MORPHOCUE)
+INNER JOIN table_struct_arg_noms USING (ID_UL_NOMS) 
+INNER JOIN table_classes_aspectuelles_theoriques_n USING (ID_CLASSES_ASPECTUELLES_NOMS) 
+INNER JOIN table_jointure_nom_verbe USING (ID_VOCABLES)
+INNER JOIN table_bases_verbales USING (ID_BASES_VERBALES)
+WHERE VOCABLE regexp ".*" ORDER BY NUM_ACC
+/*Sélection de tous les vocables + structure argumentale N + classe aspectuelle N + idem pour verbe*/
+/*select all words + argt structure + aspectual class for both N and V*/
+
+SELECT SUFFIXE, STRUCT_ARG_SEM_N, CLASSE_ASPECTUELLE_N, VERBE, ID_BASES_VERBALES,  table_ul_verbes.ID_UL_VERBES
+FROM table_vocables
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_morphocue USING (ID_MORPHOCUE)
+INNER JOIN table_struct_arg_noms USING (ID_UL_NOMS) 
+INNER JOIN table_classes_aspectuelles_theoriques_n USING (ID_CLASSES_ASPECTUELLES_NOMS) 
+INNER JOIN table_jointure_nom_verbe USING (ID_VOCABLES)
+INNER JOIN table_bases_verbales USING (ID_BASES_VERBALES)
+INNER JOIN table_ul_verbes USING (ID_BASES_VERBALES)
+
+WHERE VOCABLE regexp "^.*ment$" ORDER BY VOCABLE
+
+/**/
+
+SELECT ID_STRUCT_ARG_VERBES, ID_PATRONS_SA_V, ID_UL_VERBES, ID_PATRONS_SA_V, PATRON_V, VERBE, CLASSE_ASPECTUELLE_V
+FROM table_struct_arg_verbes
+INNER JOIN table_ul_verbes USING (ID_UL_VERBES)
+INNER JOIN table_patrons_sa_verbes USING (ID_PATRONS_SA_V)
+INNER JOIN table_bases_verbales USING (ID_BASES_VERBALES)
+INNER JOIN table_classes_aspectuelles_theoriques_v USING (ID_CLASSES_ASPECTUELLES_VERBES)
+/*Sélection des champs propres aux verbes*/
+/*select fields specific to verbs*/
+
+SELECT VOCABLE, SUFFIXE, STRUCT_ARG_SEM_N, CLASSE_ASPECTUELLE_N, VERBE, PATRON_V,  CLASSE_ASPECTUELLE_V
+FROM table_vocables
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_morphocue USING (ID_MORPHOCUE)
+INNER JOIN table_struct_arg_noms USING (ID_UL_NOMS) 
+INNER JOIN table_classes_aspectuelles_theoriques_n USING (ID_CLASSES_ASPECTUELLES_NOMS) 
+INNER JOIN table_jointure_nom_verbe USING (ID_VOCABLES)
+INNER JOIN table_struct_arg_verbes USING (ID_UL_VERBES)
+INNER JOIN table_bases_verbales USING (ID_BASES_VERBALES)
+INNER JOIN table_patrons_sa_verbes USING (ID_PATRONS_SA_V)
+INNER JOIN table_classes_aspectuelles_theoriques_v USING (ID_CLASSES_ASPECTUELLES_VERBES)
+WHERE VOCABLE regexp "^.*$" ORDER BY VOCABLE
+/*Croisement des pptés de SA du N et du V*/
+/*comparing V and N argt structure properties*/
+
+SELECT `ID_VOCABLES`, `VOCABLE`, `ID_BASES_VERBALES`, `NUM_ACC`, `VERBE`,   `ID_CONTEXTES`, `CONTEXTE` 
+FROM `table_vocables` 
+INNER JOIN `table_jointure_nom_verbe` USING ( `ID_VOCABLES` ) 
+INNER JOIN `table_bases_verbales` USING ( `ID_BASES_VERBALES` ) 
+INNER JOIN `table_ul_noms` USING ( `ID_VOCABLES` ) 
+INNER JOIN `table_contextes` USING ( `ID_UL_NOMS` ) 
+WHERE `VOCABLE` LIKE '%age' ORDER BY `VOCABLE`
+/*noms en -age + contexte et base verbale*/
+/*N in -age + context and V*/
+
+
+SELECT VOCABLE, SUFFIXE, STRUCT_ARG_SEM_N, CLASSE_ASPECTUELLE_N, VERBE, PATRON_V,  CLASSE_ASPECTUELLE_V, `ID_CONTEXTES`, `CONTEXTE`
+FROM table_vocables
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_morphocue USING (ID_MORPHOCUE)
+INNER JOIN table_struct_arg_noms USING (ID_UL_NOMS) 
+INNER JOIN table_classes_aspectuelles_theoriques_n USING (ID_CLASSES_ASPECTUELLES_NOMS) 
+INNER JOIN table_jointure_nom_verbe USING (ID_VOCABLES)
+INNER JOIN table_struct_arg_verbes USING (ID_UL_VERBES)
+INNER JOIN table_bases_verbales USING (ID_BASES_VERBALES)
+INNER JOIN table_patrons_sa_verbes USING (ID_PATRONS_SA_V)
+INNER JOIN table_classes_aspectuelles_theoriques_v USING (ID_CLASSES_ASPECTUELLES_VERBES)
+INNER JOIN `table_contextes` USING ( `ID_UL_NOMS` )
+WHERE CLASSE_ASPECTUELLE_N != CLASSE_ASPECTUELLE_V
+ORDER BY `VOCABLE`
+/*classe aspectuelle du N est différente de celle du V*/
+/*aspectual classes mismatches between N and V*/
+
+SELECT NUM_ACC, STRUCT_ARG_SEM_N, CLASSE_ASPECTUELLE_N FROM table_vocables 
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_struct_arg_noms USING (ID_UL_NOMS) 
+INNER JOIN table_classes_aspectuelles_theoriques_n USING (ID_CLASSES_ASPECTUELLES_NOMS) 
+WHERE VOCABLE RLIKE ".*ment$";
+/*MariaDB: select N in -ment*/
