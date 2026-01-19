@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nomage Lexicon Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #f8f7f4;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #efeee9;
+            --text-primary: #2c2c2c;
+            --text-secondary: #5a5a5a;
+            --text-muted: #888;
+            --accent: #1a5f7a;
+            --accent-light: #e8f4f8;
+            --accent-hover: #134a5e;
+            --success: #2d6a4f;
+            --success-bg: #d8f3dc;
+            --warning: #9a6700;
+            --warning-bg: #fff3cd;
+            --error: #9b2c2c;
+            --error-bg: #fee2e2;
+            --border: #d4d4d4;
+            --shadow: rgba(0,0,0,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        h1 {
+            margin: 0 0 4px 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        #status {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #status.loading {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        #status.success {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        #status.warning {
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        #status.error {
+            background: var(--error-bg);
+            color: var(--error);
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .load-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--bg-tertiary);
+        }
+
+        .load-options {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .load-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .load-option label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .load-option input[type="file"] {
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--border);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #245a42;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .card h2 {
+            margin: 0 0 16px 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.15s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .sql-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .sql-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .sql-examples {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+        }
+
+        .sql-examples summary {
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .sql-examples pre {
+            margin: 10px 0 0 0;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .sql-examples pre:hover {
+            background: var(--accent-light);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .results-count {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .results-table-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover td {
+            background: var(--accent-light);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        td {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .log-area {
+            margin-top: 12px;
+            padding: 12px;
+            background: #1e1e1e;
+            border-radius: 6px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            display: none;
+        }
+
+        .log-area.visible {
+            display: block;
+        }
+
+        .log-entry {
+            margin: 4px 0;
+            color: #a0a0a0;
+        }
+
+        .log-entry.info { color: #6db3f2; }
+        .log-entry.success { color: #73c991; }
+        .log-entry.warn { color: #ddb76f; }
+        .log-entry.error { color: #f48771; }
+
+        .toggle-log {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .toggle-log:hover {
+            color: var(--accent);
+        }
+
+        .schema-info {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .schema-info summary {
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .schema-info pre {
+            margin: 10px 0 0 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            .load-option {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <div>
+                    <h1>📚 Nomage Lexicon</h1>
+                    <p class="subtitle">A simple search app to query the deverbal nouns lexicon</p>
+                </div>
+                <div id="status" class="loading">
+                    <div class="spinner"></div>
+                    <span>Initializing...</span>
+                </div>
+            </div>
+
+            <div class="load-section">
+                <div class="load-options">
+                    <div class="load-option">
+                        <span>📁</span>
+                        <div>
+                            <label for="localFile">Load SQLite DB from local file system:</label><br>
+                            <input type="file" id="localFile" accept=".sqlite,.db,.sqlite3">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" id="tryRemoteBtn" onclick="tryRemoteLoad()">
+                        🌐 Load DB from GitHub
+                    </button>
+                </div>
+                <div class="toggle-log" onclick="toggleLog()">▶ Show logs</div>
+                <div id="logArea" class="log-area"></div>
+            </div>
+        </header>
+
+        <!-- Simple Search -->
+        <div class="card">
+            <h2>🔍 Search entries ("vocable" field)</h2>
+            <div class="search-row">
+                <input type="text" id="lemmaInput" class="search-input" 
+                       placeholder="Type a word (eg: investissement, manifestation...)" 
+                       disabled>
+                <button class="btn btn-primary" id="searchBtn" onclick="runSimpleQuery()" disabled>
+                    Rechercher
+                </button>
+            </div>
+        </div>
+
+        <!-- Advanced SQL Query -->
+        <div class="card">
+            <h2>⚙️ Advanced SQL query</h2>
+            <textarea id="sqlInput" class="sql-textarea" disabled
+                      placeholder="SELECT * FROM table_vocables WHERE VOCABLE LIKE '%eur' LIMIT 20">SELECT VOCABLE, NUM_ACC, STRUCT_ARG_SEM_N, CLASSE_ASPECTUELLE_N 
+FROM table_vocables 
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_struct_arg_noms USING (ID_UL_NOMS) 
+INNER JOIN table_classes_aspectuelles_theoriques_n USING (ID_CLASSES_ASPECTUELLES_NOMS) 
+ORDER BY VOCABLE, NUM_ACC
+LIMIT 50</textarea>
+            <div style="margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="sqlBtn" onclick="runAdvancedQuery()" disabled>
+                    Launch query
+                </button>
+                <button class="btn btn-secondary" id="schemaBtn" onclick="showSchema()" disabled>
+                    📋 Display schema
+                </button>
+            </div>
+
+            <details class="sql-examples">
+                <summary>📝 Query examples</summary>
+                <pre onclick="useExample(this)">-- -age nouns in + context and verbal base
+SELECT VOCABLE, NUM_ACC, VERBE, CONTEXTE 
+FROM table_vocables 
+INNER JOIN table_jointure_nom_verbe USING (ID_VOCABLES) 
+INNER JOIN table_bases_verbales USING (ID_BASES_VERBALES) 
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_contextes USING (ID_UL_NOMS) 
+WHERE VOCABLE LIKE '%age' 
+ORDER BY VOCABLE</pre>
+                <pre onclick="useExample(this)">-- Search for a particular 'vocable'
+SELECT NUM_ACC, STRUCT_ARG_SEM_N, CLASSE_ASPECTUELLE_N 
+FROM table_vocables 
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_struct_arg_noms USING (ID_UL_NOMS) 
+INNER JOIN table_classes_aspectuelles_theoriques_n USING (ID_CLASSES_ASPECTUELLES_NOMS) 
+WHERE VOCABLE LIKE 'investissement' 
+ORDER BY NUM_ACC</pre>
+                <pre onclick="useExample(this)">-- All vocables with suffix, struct. arg. and aspectual class
+SELECT SUFFIXE, NUM_ACC, STRUCT_ARG_SEM_N, CLASSE_ASPECTUELLE_N, VERBE
+FROM table_vocables 
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_morphocue USING (ID_MORPHOCUE)
+INNER JOIN table_struct_arg_noms USING (ID_UL_NOMS) 
+INNER JOIN table_classes_aspectuelles_theoriques_n USING (ID_CLASSES_ASPECTUELLES_NOMS) 
+INNER JOIN table_jointure_nom_verbe USING (ID_VOCABLES)
+INNER JOIN table_bases_verbales USING (ID_BASES_VERBALES)
+WHERE VOCABLE REGEXP '.*eur$'
+ORDER BY NUM_ACC
+LIMIT 100</pre>
+                <pre onclick="useExample(this)">-- Count all 'vocables' by suffix
+SELECT SUFFIXE, COUNT(DISTINCT VOCABLE) as total
+FROM table_vocables 
+INNER JOIN table_ul_noms USING (ID_VOCABLES) 
+INNER JOIN table_morphocue USING (ID_MORPHOCUE)
+GROUP BY SUFFIXE
+ORDER BY total DESC</pre>
+                <pre onclick="useExample(this)">-- List all tables 
+SELECT name FROM sqlite_master 
+WHERE type='table'
+ORDER BY name</pre>
+            </details>
+
+            <details class="schema-info" id="schemaDetails" style="display:none;">
+                <summary>DB structure</summary>
+                <pre id="schemaContent"></pre>
+            </details>
+        </div>
+
+        <!-- Results -->
+        <div class="card" id="resultsCard" style="display: none;">
+            <div class="results-header">
+                <h2 style="margin:0;">📊 Results</h2>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <span class="results-count" id="resultsCount"></span>
+                    <button class="btn btn-success" onclick="downloadCSV()">
+                        ⬇️ Export CSV
+                    </button>
+                </div>
+            </div>
+            <div class="results-table-wrapper">
+                <table id="resultsTable">
+                    <thead id="tableHead"></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>
+                <strong>Nomage</strong> — Lexique des nominalisations prédicatives<br>
+                <a href="https://github.com/abalvet/nomage" target="_blank">GitHub</a> · 
+                Développé par l'équipe STL (UMR 8163)
+            </p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.min.js"></script>
+    <script>
+        // Configuration
+        const CONFIG = {
+            DB_URL: 'https://raw.githubusercontent.com/abalvet/nomage/master/nomage_reboot_data.sqlite',
+            WASM_CDN: 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.wasm',
+            TIMEOUT_MS: 15000
+        };
+
+        // State
+        let db = null;
+        let SQL = null;
+        let currentResults = [];
+        let currentColumns = [];
+
+        // ==================== LOGGING ====================
+        function log(message, level = 'info') {
+            const logArea = document.getElementById('logArea');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${level}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logArea.appendChild(entry);
+            logArea.scrollTop = logArea.scrollHeight;
+            console[level === 'error' ? 'error' : level === 'warn' ? 'warn' : 'log'](message);
+        }
+
+        function toggleLog() {
+            const logArea = document.getElementById('logArea');
+            const toggle = document.querySelector('.toggle-log');
+            logArea.classList.toggle('visible');
+            toggle.textContent = logArea.classList.contains('visible') 
+                ? '▼ Masquer les logs' 
+                : '▶ Afficher les logs de chargement';
+        }
+
+        // ==================== STATUS ====================
+        function setStatus(message, type = 'loading') {
+            const status = document.getElementById('status');
+            status.className = type;
+            
+            const icons = {
+                loading: '<div class="spinner"></div>',
+                success: '✅',
+                warning: '⚠️',
+                error: '❌'
+            };
+            
+            status.innerHTML = `${icons[type] || ''} <span>${message}</span>`;
+        }
+
+        function enableUI(enabled) {
+            const elements = ['lemmaInput', 'searchBtn', 'sqlInput', 'sqlBtn', 'schemaBtn'];
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = !enabled;
+            });
+        }
+
+        // ==================== SQL.JS INITIALIZATION ====================
+        async function initializeSqlJs() {
+            log('Initialisation de SQL.js...', 'info');
+            
+            try {
+                // initSqlJs is the global function from sql.js library
+                SQL = await initSqlJs({
+                    locateFile: file => CONFIG.WASM_CDN
+                });
+                log('SQL.js initialisé avec succès', 'success');
+                return SQL;
+            } catch (err) {
+                log(`Erreur d'initialisation SQL.js: ${err.message}`, 'error');
+                throw err;
+            }
+        }
+
+        // ==================== DATABASE LOADING ====================
+        function loadDatabaseFromBuffer(buffer) {
+            try {
+                log(`Chargement de la base (${(buffer.byteLength / 1024 / 1024).toFixed(2)} Mo)...`, 'info');
+                db = new SQL.Database(new Uint8Array(buffer));
+                
+                // Add REGEXP function (not included by default in sql.js)
+                db.create_function("regexp", (pattern, str) => {
+                    if (str === null || pattern === null) return 0;
+                    try {
+                        const regex = new RegExp(pattern);
+                        return regex.test(str) ? 1 : 0;
+                    } catch (e) {
+                        return 0;
+                    }
+                });
+                log('Fonction REGEXP ajoutée', 'info');
+                
+                // Verify database
+                const tables = db.exec("SELECT name FROM sqlite_master WHERE type='table'");
+                if (tables.length > 0) {
+                    const tableNames = tables[0].values.map(r => r[0]).join(', ');
+                    log(`Tables trouvées: ${tableNames}`, 'success');
+                }
+                
+                setStatus('DB connection', 'success');
+                enableUI(true);
+                log('DB ready!', 'success');
+                
+            } catch (err) {
+                log(`Error loading: ${err.message}`, 'error');
+                setStatus('Error loading', 'error');
+                throw err;
+            }
+        }
+
+        async function tryRemoteLoad() {
+            const btn = document.getElementById('tryRemoteBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;"></div> Chargement...';
+            
+            setStatus('Download DB from GitHub...', 'loading');
+            log(`Attempting download: ${CONFIG.DB_URL}`, 'info');
+
+            try {
+                // Ensure SQL.js is ready
+                if (!SQL) {
+                    await initializeSqlJs();
+                }
+
+                // Fetch with timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
+
+                log('Fetching...', 'info');
+                const response = await fetch(CONFIG.DB_URL, { 
+                    signal: controller.signal,
+                    cache: 'no-store'
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                log(`Response received (${response.headers.get('content-length') || '?'} bytes)`, 'info');
+                
+                const buffer = await response.arrayBuffer();
+                log(`Buffer received: ${buffer.byteLength} bytes`, 'info');
+                
+                loadDatabaseFromBuffer(buffer);
+
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    log('Timeout: server not responding', 'error');
+                    setStatus('Timeout - download DB and use local file', 'warning');
+                } else {
+                    log(`Erreur réseau: ${err.message}`, 'error');
+                    setStatus('Network error - download DB and use local file', 'warning');
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🌐 Load from GitHub';
+            }
+        }
+
+        async function handleLocalFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            setStatus(`Loading ${file.name}...`, 'loading');
+            log(`File selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} Mo)`, 'info');
+
+            try {
+                // Ensure SQL.js is ready
+                if (!SQL) {
+                    await initializeSqlJs();
+                }
+
+                const buffer = await file.arrayBuffer();
+                loadDatabaseFromBuffer(buffer);
+
+            } catch (err) {
+                log(`Erreur: ${err.message}`, 'error');
+                setStatus('Error loading file', 'error');
+            }
+        }
+
+        // ==================== QUERIES ====================
+        function runSimpleQuery() {
+            const lemma = document.getElementById('lemmaInput').value.trim();
+            if (!lemma) {
+                alert('Type a lemma');
+                return;
+            }
+
+            const sql = `
+                SELECT v.VOCABLE, ul.NUM_ACC, bv.VERBE, ctx.CONTEXTE
+                FROM table_vocables v
+                LEFT JOIN table_ul_noms ul USING (ID_VOCABLES)
+                LEFT JOIN table_jointure_nom_verbe jnv USING (ID_VOCABLES)
+                LEFT JOIN table_bases_verbales bv USING (ID_BASES_VERBALES)
+                LEFT JOIN table_contextes ctx USING (ID_UL_NOMS)
+                WHERE v.VOCABLE LIKE ?
+                ORDER BY v.VOCABLE, ul.NUM_ACC
+                LIMIT 200
+            `;
+            
+            executeQuery(sql, [`%${lemma}%`]);
+        }
+
+        function runAdvancedQuery() {
+            const sql = document.getElementById('sqlInput').value.trim();
+            if (!sql) {
+                alert('Type an SQL query');
+                return;
+            }
+            executeQuery(sql);
+        }
+
+        function executeQuery(sql, params = []) {
+            if (!db) {
+                alert('DB not loaded');
+                return;
+            }
+
+            try {
+                log(`Executing: ${sql.substring(0, 80)}...`, 'info');
+                const results = db.exec(sql, params);
+                
+                if (results.length === 0) {
+                    displayResults([], []);
+                    log('No result', 'warn');
+                } else {
+                    const { columns, values } = results[0];
+                    displayResults(columns, values);
+                    log(`${values.length} result(s) found`, 'success');
+                }
+            } catch (err) {
+                log(`Erreur SQL: ${err.message}`, 'error');
+                alert(`Erreur SQL: ${err.message}`);
+            }
+        }
+
+        function displayResults(columns, rows) {
+            currentColumns = columns;
+            currentResults = rows;
+
+            const card = document.getElementById('resultsCard');
+            const thead = document.getElementById('tableHead');
+            const tbody = document.getElementById('tableBody');
+            const count = document.getElementById('resultsCount');
+
+            if (rows.length === 0) {
+                card.style.display = 'block';
+                thead.innerHTML = '';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="100" class="empty-state">
+                            <div class="empty-state-icon">🔍</div>
+                            <div>No result</div>
+                        </td>
+                    </tr>
+                `;
+                count.textContent = '0 result';
+                return;
+            }
+
+            // Header
+            thead.innerHTML = `<tr>${columns.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr>`;
+
+            // Body
+            tbody.innerHTML = rows.map(row => 
+                `<tr>${row.map(cell => `<td>${escapeHtml(cell ?? '')}</td>`).join('')}</tr>`
+            ).join('');
+
+            count.textContent = `${rows.length} résultat${rows.length > 1 ? 's' : ''}`;
+            card.style.display = 'block';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        // ==================== SCHEMA & EXPORT ====================
+        function showSchema() {
+            if (!db) return;
+
+            try {
+                const result = db.exec(`
+                    SELECT sql FROM sqlite_master 
+                    WHERE type='table' AND sql IS NOT NULL
+                `);
+                
+                if (result.length > 0) {
+                    const schemas = result[0].values.map(r => r[0]).join('\n\n');
+                    document.getElementById('schemaContent').textContent = schemas;
+                    document.getElementById('schemaDetails').style.display = 'block';
+                    document.getElementById('schemaDetails').open = true;
+                }
+            } catch (err) {
+                log(`Schema error: ${err.message}`, 'error');
+            }
+        }
+
+        function useExample(pre) {
+            document.getElementById('sqlInput').value = pre.textContent;
+        }
+
+        function downloadCSV() {
+            if (currentResults.length === 0) {
+                alert('Nothing to export');
+                return;
+            }
+
+            const escapeCSV = (val) => {
+                const str = String(val ?? '');
+                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
+
+            const header = currentColumns.map(escapeCSV).join(',');
+            const rows = currentResults.map(row => row.map(escapeCSV).join(','));
+            const csv = [header, ...rows].join('\n');
+
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `nomage_export_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ==================== KEYBOARD SHORTCUTS ====================
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (document.activeElement.id === 'lemmaInput') {
+                    runSimpleQuery();
+                } else if (e.ctrlKey && document.activeElement.id === 'sqlInput') {
+                    runAdvancedQuery();
+                }
+            }
+        });
+
+        // ==================== INITIALIZATION ====================
+        document.getElementById('localFile').addEventListener('change', handleLocalFile);
+
+        // Auto-initialize SQL.js on page load
+        (async function init() {
+            log('Starting app...', 'info');
+            setStatus('Initializing SQL.js...', 'loading');
+            
+            try {
+                await initializeSqlJs();
+                setStatus('Ready - load the DB', 'warning');
+                log('Waiting for DB to load', 'info');
+            } catch (err) {
+                setStatus('Initialization error', 'error');
+            }
+        })();
+    </script>
+</body>
+</html>
