@@ -4,3 +4,5 @@ nomage
 Nomage is a lexical database of French deverbal nouns, extracted from the French Treebank. Each noun's syntax-semantics argument mappings are described, each noun is linked to its original sentence in the FTB corpus.
 
 You can query the lexicon by using [the google colab notebook](https://colab.research.google.com/github/abalvet/nomage/blob/master/nomage_query.ipynb).
+
+**NEW**: alternatively, you can use [this simple app to query the lexicon](https://github.com/abalvet/nomage/blob/master/index.html)
